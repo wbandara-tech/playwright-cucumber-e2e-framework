@@ -187,7 +187,8 @@ npm run report
 
 After CI runs, the Allure report is automatically published to:
 
-**[https://wbandara-tech.github.io/playwright-cucumber-e2e-framework/](https://wbandara-tech.github.io/playwright-cucumber-e2e-framework/)**
+- **Dashboard:** [https://wbandara-tech.github.io/playwright-cucumber-e2e-framework/](https://wbandara-tech.github.io/playwright-cucumber-e2e-framework/)
+- **Allure Report:** [https://wbandara-tech.github.io/playwright-cucumber-e2e-framework/allure/](https://wbandara-tech.github.io/playwright-cucumber-e2e-framework/allure/)
 
 ---
 
@@ -249,7 +250,8 @@ Trigger: On every push to `main`/`develop` or pull request to `main`.
 | Resource   | URL                                                                                              |
 | ---------- | ------------------------------------------------------------------------------------------------ |
 | Repository | [GitHub Repo](https://github.com/wbandara-tech/playwright-cucumber-e2e-framework)                |
-| Report     | [Allure Report](https://wbandara-tech.github.io/playwright-cucumber-e2e-framework/)              |
+| Dashboard  | [Test Dashboard](https://wbandara-tech.github.io/playwright-cucumber-e2e-framework/)             |
+| Report     | [Allure Report](https://wbandara-tech.github.io/playwright-cucumber-e2e-framework/allure/)       |
 | Target App | [Automation Exercise](https://automationexercise.com)                                            |
 
 ---
