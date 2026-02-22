@@ -91,20 +91,6 @@ jobs:
           echo "=== Result JSON count ==="
           ls reports/allure-results/*-result.json 2>/dev/null | wc -l || echo "0"
 
-      - name: Get Allure history from gh-pages
-        if: always()
-        continue-on-error: true
-        run: |
-          git fetch origin gh-pages --depth=1 || true
-          mkdir -p allure-history
-          git worktree add gh-pages-branch gh-pages 2>/dev/null || true
-          if [ -d gh-pages-branch/allure/history ]; then
-            echo "Found previous Allure history, copying..."
-            cp -r gh-pages-branch/allure/history reports/allure-results/history
-          else
-            echo "No previous Allure history found"
-          fi
-
       - name: Generate Allure HTML report
         if: always()
         run: |
