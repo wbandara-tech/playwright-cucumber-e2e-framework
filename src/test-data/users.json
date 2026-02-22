@@ -1,0 +1,33 @@
+{
+  "validUser": {
+    "email": "testuser_auto@test.com",
+    "password": "Test@1234",
+    "name": "Test User"
+  },
+  "invalidUser": {
+    "email": "invalid@test.com",
+    "password": "wrongpassword"
+  },
+  "newUser": {
+    "name": "New Test User",
+    "email": "newuser@test.com"
+  },
+  "registrationData": {
+    "title": "Mr",
+    "name": "New Test User",
+    "password": "SecurePass@123",
+    "day": "15",
+    "month": "6",
+    "year": "1990",
+    "firstName": "Test",
+    "lastName": "User",
+    "company": "Test Corp",
+    "address": "123 Test Street",
+    "address2": "Suite 456",
+    "country": "United States",
+    "state": "California",
+    "city": "Los Angeles",
+    "zipcode": "90001",
+    "mobile": "1234567890"
+  }
+}

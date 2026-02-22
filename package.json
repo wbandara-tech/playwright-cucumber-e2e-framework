@@ -1,0 +1,44 @@
+{
+  "name": "playwright-cucumber-e2e-framework",
+  "version": "1.0.0",
+  "description": "Industrial-standard Playwright + Cucumber BDD automation framework for UI testing",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "rimraf reports/allure-results",
+    "test": "cucumber-js",
+    "test:smoke": "cucumber-js --tags @smoke",
+    "test:regression": "cucumber-js --tags @regression",
+    "test:login": "cucumber-js --tags @login",
+    "test:register": "cucumber-js --tags @register",
+    "test:cart": "cucumber-js --tags @cart",
+    "test:search": "cucumber-js --tags @search",
+    "test:parallel": "cucumber-js --parallel 2",
+    "report:generate": "allure generate reports/allure-results -o reports/allure-report --clean",
+    "report:open": "allure open reports/allure-report",
+    "report": "npm run report:generate && npm run report:open",
+    "lint": "eslint src/**/*.ts",
+    "clean": "rimraf reports/"
+  },
+  "keywords": [
+    "playwright",
+    "cucumber",
+    "bdd",
+    "typescript",
+    "e2e",
+    "automation",
+    "testing"
+  ],
+  "author": "wbandara-tech",
+  "license": "MIT",
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.3.1",
+    "@playwright/test": "^1.41.2",
+    "@types/node": "^20.11.16",
+    "allure-cucumberjs": "^2.15.1",
+    "dotenv": "^16.4.1",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "winston": "^3.11.0"
+  }
+}
