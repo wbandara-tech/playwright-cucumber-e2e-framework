@@ -72,6 +72,12 @@ jobs:
         run: npm test
         continue-on-error: true
 
+      - name: Convert Cucumber results to Allure format
+        if: always()
+        run: |
+          echo "=== Converting Cucumber JSON to Allure results ==="
+          node scripts/convert-to-allure.js || echo "Conversion script failed or no results"
+
       - name: Prepare Allure environment info
         if: always()
         run: |

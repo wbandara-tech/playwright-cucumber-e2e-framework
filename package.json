@@ -6,6 +6,7 @@
   "scripts": {
     "pretest": "rimraf reports/allure-results",
     "test": "cucumber-js",
+    "posttest": "node scripts/convert-to-allure.js",
     "test:smoke": "cucumber-js --tags @smoke",
     "test:regression": "cucumber-js --tags @regression",
     "test:login": "cucumber-js --tags @login",
