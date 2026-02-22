@@ -5,11 +5,9 @@ const common = {
     "progress-bar",
     "json:reports/cucumber-report.json",
     "html:reports/cucumber-report.html",
-    "allure-cucumberjs/reporter",
   ],
   formatOptions: {
     snippetInterface: "async-await",
-    resultsDir: "reports/allure-results",
   },
   publishQuiet: true,
 };

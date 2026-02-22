@@ -52,9 +52,35 @@ jobs:
           VIDEO_ON_FAILURE=true
           EOF
 
+      - name: Create allure-results directory
+        run: mkdir -p reports/allure-results
+
       - name: Run Cucumber tests
         run: npm test
         continue-on-error: true
+        env:
+          ALLURE_RESULTS_DIR: reports/allure-results
+
+      - name: Generate Allure results from Cucumber JSON
+        if: always()
+        run: |
+          # Install allure-commandline
+          npm install -g allure-commandline --save-dev
+          # If cucumber JSON report exists, convert to allure input
+          if [ -f reports/cucumber-report.json ]; then
+            echo "Cucumber JSON report found, preparing Allure results..."
+            # Copy cucumber JSON to allure-results for processing
+            cp reports/cucumber-report.json reports/allure-results/cucumber-report.json
+            # Create environment properties for Allure
+            echo "Browser=${{ matrix.browser }}" > reports/allure-results/environment.properties
+            echo "Environment=QA" >> reports/allure-results/environment.properties
+            echo "BaseURL=https://automationexercise.com" >> reports/allure-results/environment.properties
+            echo "OS=ubuntu-latest" >> reports/allure-results/environment.properties
+            echo "Node=$(node --version)" >> reports/allure-results/environment.properties
+          fi
+          # List allure-results contents for debugging
+          echo "=== Allure Results Directory ==="
+          ls -la reports/allure-results/ || echo "Directory empty or not found"
 
       - name: Get Allure history
         uses: actions/checkout@v4
@@ -71,6 +97,8 @@ jobs:
           allure_results: reports/allure-results
           allure_history: allure-history
           keep_reports: 20
+          gh_pages: gh-pages
+          allure_report: allure-report
 
       - name: Publish Allure report to GitHub Pages
         if: always()
