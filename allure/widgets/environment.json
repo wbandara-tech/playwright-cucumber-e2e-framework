@@ -1,0 +1,1 @@
+[{"values":["chromium"],"name":"Browser"},{"values":["QA"],"name":"Environment"},{"values":["https://automationexercise.com"],"name":"Base_URL"},{"values":["ubuntu-latest"],"name":"OS"},{"values":["v20.20.0"],"name":"Node"}]
