@@ -10,7 +10,8 @@ Feature: User Login
 
   @smoke @valid-login
   Scenario: Valid login with correct credentials
-    When the user enters valid login credentials
+    When the user registers a fresh account via API
+    And the user enters valid login credentials
     Then the user should be logged in successfully
     And the user should see their username in the navbar
 

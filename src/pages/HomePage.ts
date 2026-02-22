@@ -24,7 +24,7 @@ export class HomePage extends BasePage {
     this.deleteAccountLink = page.locator('a[href="/delete_account"]');
     this.contactUsLink = page.locator('a[href="/contact_us"]');
     this.productsLink = page.locator('a[href="/products"]');
-    this.cartLink = page.locator('a[href="/view_cart"]');
+    this.cartLink = page.locator('header a[href="/view_cart"]');
     this.loggedInUser = page.locator("li:has(a:has(i.fa-user))");
     this.consentButton = page.locator('button.fc-cta-consent, [aria-label="Consent"]');
   }

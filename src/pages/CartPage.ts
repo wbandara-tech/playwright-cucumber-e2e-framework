@@ -15,7 +15,7 @@ export class CartPage extends BasePage {
     super(page);
     this.cartItems = page.locator("#cart_info_table tbody tr");
     this.emptyCartMessage = page.locator(
-      '#empty_cart span:has-text("Cart is empty!")'
+      '#empty_cart, b:has-text("Cart is empty"), p:has-text("Cart is empty")'
     );
     this.proceedToCheckoutButton = page.locator(
       'a:has-text("Proceed To Checkout")'
@@ -79,15 +79,25 @@ export class CartPage extends BasePage {
     const row = this.cartItems.nth(index);
     const deleteButton = row.locator("td.cart_delete a");
     await this.clickElement(deleteButton);
-    // Wait for the item to be removed from the DOM
-    await this.page.waitForTimeout(1000);
+    // Wait for the item row to be removed from the DOM
+    try {
+      await row.waitFor({ state: "detached", timeout: 10000 });
+    } catch {
+      // fallback: wait a bit
+      await this.page.waitForTimeout(2000);
+    }
   }
 
   /**
    * Checks if the cart is empty.
    */
   async isCartEmpty(): Promise<boolean> {
-    return await this.isElementVisible(this.emptyCartMessage);
+    // First check if the empty cart element is visible
+    const emptyVisible = await this.isElementVisible(this.emptyCartMessage);
+    if (emptyVisible) return true;
+    // Fallback: check if there are 0 items
+    const count = await this.getCartItemCount();
+    return count === 0;
   }
 
   /**

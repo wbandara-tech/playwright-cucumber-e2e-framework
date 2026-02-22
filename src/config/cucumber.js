@@ -9,7 +9,6 @@ const common = {
   formatOptions: {
     snippetInterface: "async-await",
   },
-  publishQuiet: true,
 };
 
 module.exports = {

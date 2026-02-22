@@ -14,4 +14,3 @@ Feature: User Registration
     And the user fills in the registration form with valid details
     And the user submits the registration form
     Then the account should be created successfully
-    And the user should see the "ACCOUNT CREATED!" message

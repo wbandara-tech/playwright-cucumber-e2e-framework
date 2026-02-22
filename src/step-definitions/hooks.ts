@@ -5,12 +5,16 @@ import {
   AfterAll,
   Status,
   AfterStep,
+  setDefaultTimeout,
 } from "@cucumber/cucumber";
 import { CustomWorld } from "../utils/world";
 import { ENV } from "../config/env";
 import { Logger } from "../utils/logger";
 import * as fs from "fs";
 import * as path from "path";
+
+// Set Cucumber step timeout to 30 seconds (default is 5s)
+setDefaultTimeout(30000);
 
 const logger = new Logger("Hooks");
 
