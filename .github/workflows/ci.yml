@@ -99,6 +99,285 @@ jobs:
           keep_reports: 20
           gh_pages: gh-pages
           allure_report: allure-report
+          subfolder: allure
+
+      - name: Create dashboard landing page
+        if: always()
+        run: |
+          TOTAL_TESTS=0
+          PASSED=0
+          FAILED=0
+          SKIPPED=0
+          # Count results from allure result files
+          if [ -d reports/allure-results ]; then
+            for f in reports/allure-results/*-result.json; do
+              if [ -f "$f" ]; then
+                TOTAL_TESTS=$((TOTAL_TESTS + 1))
+                STATUS=$(python3 -c "import json; print(json.load(open('$f'))['status'])" 2>/dev/null || echo "unknown")
+                case "$STATUS" in
+                  passed) PASSED=$((PASSED + 1)) ;;
+                  failed) FAILED=$((FAILED + 1)) ;;
+                  skipped) SKIPPED=$((SKIPPED + 1)) ;;
+                  *) SKIPPED=$((SKIPPED + 1)) ;;
+                esac
+              fi
+            done
+          fi
+          BROWSER="${{ matrix.browser }}"
+          BROWSER_CAP="$(echo $BROWSER | sed 's/./\U&/')"
+          RUN_DATE=$(date -u +"%b %d, %Y %H:%M UTC")
+          # Determine pass rate
+          if [ "$TOTAL_TESTS" -gt 0 ]; then
+            PASS_RATE=$(( (PASSED * 100) / TOTAL_TESTS ))
+          else
+            PASS_RATE=0
+          fi
+          if [ "$FAILED" -eq 0 ] && [ "$TOTAL_TESTS" -gt 0 ]; then
+            STATUS_COLOR="#00c853"
+            STATUS_TEXT="ALL PASSED"
+            STATUS_ICON="✅"
+          elif [ "$FAILED" -gt 0 ]; then
+            STATUS_COLOR="#ff5252"
+            STATUS_TEXT="$FAILED FAILED"
+            STATUS_ICON="❌"
+          else
+            STATUS_COLOR="#ffc107"
+            STATUS_TEXT="NO RESULTS"
+            STATUS_ICON="⚠️"
+          fi
+          
+          cat > allure-history/index.html << 'HTMLEOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Playwright Cucumber E2E Framework</title>
+            <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+                background: #0a0e27;
+                color: #e0e0e0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+              }
+              .container { max-width: 900px; width: 100%; padding: 40px 20px; }
+              .header { text-align: center; margin-bottom: 36px; }
+              .logo { font-size: 52px; margin-bottom: 8px; }
+              .header h1 {
+                font-size: 2.2rem;
+                background: linear-gradient(135deg, #00bcd4, #7c4dff, #ff4081);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 8px;
+              }
+              .header .subtitle { color: #80cbc4; font-size: 1rem; opacity: 0.85; }
+              .status-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: #141832;
+                border: 1px solid #1e2448;
+                border-radius: 24px;
+                padding: 8px 20px;
+                margin: 18px 0 24px;
+                font-size: 0.85rem;
+                color: #b0bec5;
+              }
+              .status-badge .dot {
+                width: 8px; height: 8px;
+                border-radius: 50%;
+                display: inline-block;
+              }
+              .stats {
+                display: flex;
+                justify-content: center;
+                gap: 40px;
+                margin-bottom: 28px;
+                flex-wrap: wrap;
+              }
+              .stat { text-align: center; }
+              .stat .num {
+                font-size: 2.2rem;
+                font-weight: 700;
+                background: linear-gradient(135deg, #00e5ff, #7c4dff);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+              }
+              .stat .label { font-size: 0.78rem; color: #78909c; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+              .tags { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+              .tag {
+                padding: 4px 14px;
+                border-radius: 14px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: #fff;
+              }
+              .tag.smoke { background: #00c853; }
+              .tag.auth { background: #2979ff; }
+              .tag.cart { background: #ff6d00; }
+              .tag.checkout { background: #aa00ff; }
+              .tag.products { background: #00bfa5; }
+              .tag.regression { background: #ff4081; }
+              .tag.search { background: #ffd600; color: #333; }
+              .tag.register { background: #3d5afe; }
+              .cards {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                margin-bottom: 36px;
+              }
+              .card {
+                background: #141832;
+                border: 1px solid #1e2448;
+                border-radius: 14px;
+                padding: 28px 20px;
+                text-align: center;
+                transition: transform .2s, border-color .2s;
+              }
+              .card:hover { transform: translateY(-3px); border-color: #7c4dff; }
+              .card .icon { font-size: 2rem; margin-bottom: 12px; }
+              .card h3 { font-size: 1rem; color: #e0e0e0; margin-bottom: 8px; }
+              .card p { font-size: 0.8rem; color: #78909c; line-height: 1.5; }
+              .buttons {
+                display: flex;
+                justify-content: center;
+                gap: 14px;
+                flex-wrap: wrap;
+                margin-bottom: 32px;
+              }
+              .btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 12px 28px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-size: 0.9rem;
+                font-weight: 600;
+                transition: transform .2s, box-shadow .2s;
+              }
+              .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+              .btn.allure { background: linear-gradient(135deg, #00c853, #00e676); color: #0a0e27; }
+              .btn.repo { background: linear-gradient(135deg, #ff4081, #f50057); color: #fff; }
+              .btn.ci { background: linear-gradient(135deg, #7c4dff, #651fff); color: #fff; }
+              .btn.cucumber { background: linear-gradient(135deg, #ff6d00, #ff9100); color: #fff; }
+              .footer {
+                text-align: center;
+                color: #455a64;
+                font-size: 0.75rem;
+                padding: 20px 0;
+                border-top: 1px solid #1e2448;
+              }
+              .footer a { color: #7c4dff; text-decoration: none; }
+              .result-bar {
+                display: flex;
+                height: 6px;
+                border-radius: 3px;
+                overflow: hidden;
+                margin: 16px auto;
+                max-width: 400px;
+                background: #1e2448;
+              }
+              .result-bar .passed { background: #00c853; }
+              .result-bar .failed { background: #ff5252; }
+              .result-bar .skipped { background: #ffc107; }
+              @media (max-width: 600px) {
+                .cards { grid-template-columns: 1fr; }
+                .stats { gap: 24px; }
+                .stat .num { font-size: 1.6rem; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <div class="logo">🎭</div>
+                <h1>Playwright E-Commerce</h1>
+                <p class="subtitle">Industrial-standard E2E test automation for AutomationExercise.com</p>
+                <div class="status-badge">
+          HTMLEOF
+          
+          echo "        <span class='dot' style='background:${STATUS_COLOR}'></span>" >> allure-history/index.html
+          echo "        ${STATUS_ICON} Last run: ${RUN_DATE} • ${BROWSER_CAP} • ${TOTAL_TESTS} tests • ${PASSED} passed • ${FAILED} failed" >> allure-history/index.html
+          
+          cat >> allure-history/index.html << 'HTMLEOF2'
+                </div>
+              </div>
+          HTMLEOF2
+          
+          echo "      <div class='stats'>" >> allure-history/index.html
+          echo "        <div class='stat'><div class='num'>${TOTAL_TESTS}</div><div class='label'>Test Cases</div></div>" >> allure-history/index.html
+          echo "        <div class='stat'><div class='num'>5</div><div class='label'>Page Objects</div></div>" >> allure-history/index.html
+          echo "        <div class='stat'><div class='num'>3</div><div class='label'>Browsers</div></div>" >> allure-history/index.html
+          echo "        <div class='stat'><div class='num'>4</div><div class='label'>Test Suites</div></div>" >> allure-history/index.html
+          echo "      </div>" >> allure-history/index.html
+          
+          # Result bar
+          if [ "$TOTAL_TESTS" -gt 0 ]; then
+            P_PCT=$(( (PASSED * 100) / TOTAL_TESTS ))
+            F_PCT=$(( (FAILED * 100) / TOTAL_TESTS ))
+            S_PCT=$(( 100 - P_PCT - F_PCT ))
+          else
+            P_PCT=0; F_PCT=0; S_PCT=100
+          fi
+          echo "      <div class='result-bar'>" >> allure-history/index.html
+          echo "        <div class='passed' style='width:${P_PCT}%'></div>" >> allure-history/index.html
+          echo "        <div class='failed' style='width:${F_PCT}%'></div>" >> allure-history/index.html
+          echo "        <div class='skipped' style='width:${S_PCT}%'></div>" >> allure-history/index.html
+          echo "      </div>" >> allure-history/index.html
+          
+          cat >> allure-history/index.html << 'HTMLEOF3'
+              <div class="tags">
+                <span class="tag smoke">@smoke</span>
+                <span class="tag auth">@login</span>
+                <span class="tag register">@register</span>
+                <span class="tag cart">@cart</span>
+                <span class="tag products">@search</span>
+                <span class="tag regression">@regression</span>
+              </div>
+              <div class="cards">
+                <div class="card">
+                  <div class="icon">🔐</div>
+                  <h3>Authentication</h3>
+                  <p>Register, Login, Logout &amp; duplicate email validation</p>
+                </div>
+                <div class="card">
+                  <div class="icon">🛒</div>
+                  <h3>Cart &amp; Checkout</h3>
+                  <p>Add to cart, quantity, verify items, remove &amp; checkout flow</p>
+                </div>
+                <div class="card">
+                  <div class="icon">🔍</div>
+                  <h3>Products &amp; Search</h3>
+                  <p>Product listing, search, categories &amp; product details</p>
+                </div>
+                <div class="card">
+                  <div class="icon">⚙️</div>
+                  <h3>CI/CD Pipeline</h3>
+                  <p>GitHub Actions with cross-browser matrix, smoke tests &amp; scheduled runs</p>
+                </div>
+              </div>
+              <div class="buttons">
+                <a href="./allure/" class="btn allure">📊 View Allure Report</a>
+                <a href="https://github.com/wbandara-tech/playwright-cucumber-e2e-framework" class="btn repo" target="_blank">💻 View Repository</a>
+                <a href="https://github.com/wbandara-tech/playwright-cucumber-e2e-framework/actions" class="btn ci" target="_blank">🚀 CI Runs</a>
+              </div>
+              <div class="footer">
+                Built with <a href="https://playwright.dev">Playwright</a> + <a href="https://cucumber.io">Cucumber</a> •
+                TypeScript • Page Object Model • Allure Reports<br>
+                &copy; 2026 wbandara-tech
+              </div>
+            </div>
+          </body>
+          </html>
+          HTMLEOF3
 
       - name: Publish Allure report to GitHub Pages
         if: always()
